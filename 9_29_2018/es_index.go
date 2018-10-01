@@ -97,39 +97,41 @@ func main() {
 	// Set up client and connect to default ES server
 	client := connectClient(&ctx, IP)
 
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Printf("What would you like to do?\n1. Check if index exists (1)\n2. Create an index (2)\n3. Delete an index (3)\n")
-	text, _ := reader.ReadString('\n')
-	if text == "1\n" {
-		fmt.Printf("Type in index name:\n")
-		text, _ := reader.ReadString('\n')
-		exists := checkIndexExists(&ctx, client, text)
-		if exists {
-			fmt.Printf("%s already exists.\n", text)
-		} else {
-			fmt.Printf("%s does not exists.\n", text)
+	flag := 1
+
+	for flag < 1000 {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Printf("What would you like to do?\n1. Check if index exists (1)\n2. Create an index (2)\n3. Delete an index (3)\nPress x to exit\n")
+		option, _ := reader.ReadString('\n')
+		optionSplice := strings.Split(option, "\n")
+		if optionSplice[0] == "x" {
+			break
+			flag += 1000
 		}
-	} else if text == "2" {
-
-	} else {
-
+		fmt.Printf("Type in index name:\n")
+		index, _ := reader.ReadString('\n')
+		indexSplice := strings.Split(index, "\n")
+		if optionSplice[0] == "1" {
+			exists := checkIndexExists(&ctx, client, indexSplice[0])
+			if exists {
+				fmt.Printf("%s already exists.\n", indexSplice[0])
+			} else {
+				fmt.Printf("%s does not exists.\n", indexSplice[0])
+			}
+		} else if optionSplice[0] == "2" {
+			exists := checkIndexExists(&ctx, client, indexSplice[0])
+			if exists {
+				fmt.Printf("Error: %s already exists.\n", indexSplice[0])
+			} else {
+				createIndex(&ctx, client, mapping, indexSplice[0])
+			}
+		} else {
+			exists := checkIndexExists(&ctx, client, indexSplice[0])
+			if exists {
+				deleteIndex(&ctx, client, indexSplice[0])
+			} else {
+				fmt.Printf("Error: %s does not exists.\n", indexSplice[0])
+			}
+		}
 	}
-
-	// // Check index in ES server, if not exists, create index
-	// exists := checkIndexExists(&ctx, client, INDEX)
-	// if exists {
-	// 	fmt.Printf("%s already exists.\n", INDEX)
-	// } else {
-	// 	fmt.Printf("%s does not exists.\n", INDEX)
-	// 	createIndex(&ctx, client, mapping, INDEX)
-	// }
-
-	// // Check index in ES server, if exists, delete index
-	// exists := checkIndexExists(&ctx, client, INDEX)
-	// if exists {
-	// 	fmt.Printf("%s already exists.\n", INDEX)
-	// 	deleteIndex(&ctx, client, INDEX)
-	// } else {
-	// 	fmt.Printf("%s does not exists.\n", INDEX)
-	// }
 }
